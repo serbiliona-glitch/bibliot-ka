@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Бібліотека">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADI0lEQVR4nO3avY1TWwBGUUBUQAfEiAboAkROTkIDhDRACeRIdEEHxHTwanjZaEDsEfj+nHOu1som8Pjas21/x5rHL9+/eQR/8mT0BTAvcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRykp6MvYEbfP32+7YavPn7Y90rG8s7xu5vL2HjbCYnjF9v/ulfqQxwkcZDEQRp2WnEimN+Ydw4ngiUMiMOJYBU2B0kcJHGQxEESB0kcJHGQxDG1r+9eD7x3/+wzo7FN3LlIHDc/m2+/fNv3Sm5WD+Hru9ejLvIKcWx5nQ186u8uYOC9P2z5OLY/uUP6mLmJO8vHsZAlgrhPHIdb9L3tkaMsDxDH4eY5EP0rcZDEsYYhY1YcJHGcYdHZIQ6SOJZx/uwQB0kcJ1lxdoiDJI6VnDw7xEESx3mWmx3iIIljMWfODnGQxHGqtWaHOEjiWM9ps0McJHGcbaHZIQ6SOJZ0zuwQB0kcA6wyO8RBEseqTpgd4iCJY4wlZoc4SOJY2NGzQxwkcQwz/+wQB0kcazt0doiDJI6RJp8d4ljecZ8s4iCJgySOwWaeHeK4goNmhzhI4hhv2k8WcZDEcRFHzA5xkMQxhTlnhzhI4riO3WeHOEjimMWEs0McJHFcyr6zQxwkcUxkttkhDpI4rmbH2SEOkjjmMtXsEAdJHBe01+wQB0kc05lndoiDJI5r2mV2iIMkjhlNMjvEQRLHZW2fHeIgiWNSM8wOcZDEcWUbZ4c4SOKY1/DZIQ6SOC5uy+wQB+np6AvgIW+/fLv5pb99sojjUvbdsOK4goPONeJY2NFn3ccv37859A7+6Punz1tu/urjh/s/bvwe8LeneN9r28X9B3jmlx8HxvHfj58H/Wb+0rMXz7fc3FGWJA6SOEjiIImDJA7SgV+CbTxHMZx3DpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SP8DpYKJPa+4/JYAAAAASUVORK5CYII=">
+<title>Моя бібліотека</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F3EF; --surface:#FFFFFF; --surface2:#E7E9E3; --ink:#1B2220; --muted:#66706B;
+  --line:#D9DCD4; --accent:#2D6A52; --accent-ink:#FFFFFF; --accent-soft:#DCEAE2;
+  --gold:#A8711A; --danger:#B3402F;
+  --serif:"Literata", Georgia, "Times New Roman", serif;
+  --sans:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --tabh:64px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101513; --surface:#1A211E; --surface2:#252E2A; --ink:#E6ECE8; --muted:#95A09B;
+    --line:#2F3934; --accent:#74C49E; --accent-ink:#0D1A13; --accent-soft:#1F3a2E;
+    --gold:#E2B45C; --danger:#E3735F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101513; --surface:#1A211E; --surface2:#252E2A; --ink:#E6ECE8; --muted:#95A09B;
+  --line:#2F3934; --accent:#74C49E; --accent-ink:#0D1A13; --accent-soft:#1F3a2E;
+  --gold:#E2B45C; --danger:#E3735F; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,select,textarea{font:inherit;font-size:16px;color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+img{max-width:100%}
+main{max-width:760px;margin:0 auto;padding:12px 18px calc(var(--tabh) + 32px)}
+h1{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.15;margin:0;letter-spacing:-.01em}
+h2{font-family:var(--serif);font-weight:600;font-size:21px;margin:30px 0 12px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;margin-bottom:8px}
+.sub{color:var(--muted);font-size:14px}
+.icon-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.icon-btn:active{background:var(--surface2)}
+.icon-btn svg{width:24px;height:24px}
+
+/* ---------- book cover: the one memorable object ---------- */
+.cover{position:relative;aspect-ratio:2/3;border-radius:2px 6px 6px 2px;overflow:hidden;background:var(--surface2);
+  box-shadow:0 1px 2px rgba(0,0,0,.14),0 8px 18px -8px rgba(0,0,0,.35);container-type:inline-size;flex-shrink:0}
+.cover::after{content:"";position:absolute;inset:0 auto 0 0;width:7%;
+  background:linear-gradient(90deg,rgba(0,0,0,.22),rgba(255,255,255,.10) 55%,transparent);pointer-events:none}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{background:var(--c);color:#F3EEE3;display:flex;flex-direction:column;justify-content:space-between;padding:13% 9% 11% 15%}
+.ph-t{font-family:var(--serif);font-weight:600;font-size:12.5cqw;line-height:1.14;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;word-break:break-word}
+.ph-a{font-size:8.5cqw;opacity:.82;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* ---------- home ---------- */
+.counts{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.counts > div{padding:14px 16px;border-bottom:1px solid var(--line)}
+.counts > div:nth-child(odd){border-right:1px solid var(--line)}
+.counts > .wide{grid-column:1/-1;border-right:0;border-bottom:0;display:flex;align-items:baseline;justify-content:space-between}
+.num{font-family:var(--serif);font-size:28px;font-weight:600;line-height:1.1;display:block}
+.lbl{font-size:14px;color:var(--muted)}
+.big-add{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;margin-top:16px;border-radius:16px;
+  background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:18px}
+.big-add:active{filter:brightness(.92)}
+.reading{display:flex;gap:14px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;width:100%;text-align:left}
+.reading .cover{width:62px}
+.r-info{flex:1;min-width:0}
+.r-title{font-family:var(--serif);font-weight:600;font-size:17px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.r-author{color:var(--muted);font-size:14px;margin-top:2px}
+.bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:10px 0 6px}
+.bar > i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.r-nums{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.r-nums b{color:var(--ink);font-weight:600}
+.shelf{display:flex;gap:14px;overflow-x:auto;padding:4px 18px 14px;margin:0 -18px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.shelf > button{width:96px;flex-shrink:0;scroll-snap-align:start;text-align:left}
+.shelf .t{font-size:13px;margin-top:8px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.empty{padding:22px 18px;border:1.5px dashed var(--line);border-radius:16px;color:var(--muted);font-size:15px;text-align:center}
+.banner{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);margin-bottom:14px;font-size:14px}
+.banner button{margin-left:auto;font-weight:600;color:var(--accent);white-space:nowrap;min-height:36px}
+
+/* ---------- library ---------- */
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 12px;min-height:48px}
+.search svg{width:20px;height:20px;color:var(--muted);flex-shrink:0}
+.search input{flex:1;border:0;background:transparent;outline:none;min-height:46px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:12px -18px 0;padding:0 18px 4px}
+.chip{flex-shrink:0;min-height:38px;padding:0 14px;border-radius:19px;border:1px solid var(--line);background:var(--surface);font-size:15px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin:14px 0 12px;gap:10px}
+.tool-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:12px;background:var(--surface2);font-size:15px;font-weight:500}
+.tool-btn .dot{min-width:20px;height:20px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:12px;display:grid;place-items:center;padding:0 5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:22px 16px}
+.card{text-align:left;display:block;width:100%}
+.card .title{font-family:var(--serif);font-weight:600;font-size:16px;line-height:1.25;margin-top:10px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card .author{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px}
+.pill{font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;white-space:nowrap}
+.st-want{background:var(--surface2);color:var(--muted)}
+.st-reading{background:var(--accent-soft);color:var(--accent)}
+.st-read{background:var(--ink);color:var(--bg)}
+.st-dropped{background:transparent;color:var(--danger);box-shadow:inset 0 0 0 1px currentColor}
+.rate{font-size:13px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+.fav-mark{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:2}
+.fav-mark svg{width:15px;height:15px;color:#fff}
+
+/* ---------- lists ---------- */
+.row{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.row .cover{width:56px}
+.row .r-info{cursor:pointer}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-soft{background:var(--surface2)}
+.btn-danger{color:var(--danger);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.btn-wide{width:100%;min-height:54px;font-size:17px;border-radius:14px}
+
+/* ---------- stats ---------- */
+.seg{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:2px}
+.seg button{flex:1;min-height:40px;border-radius:10px;font-size:15px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 12px 10px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:130px}
+.bars > div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.bars i{display:block;width:100%;max-width:26px;background:var(--accent);border-radius:4px 4px 1px 1px;min-height:2px}
+.bars i.zero{background:var(--surface2)}
+.bars .v{font-size:11px;color:var(--muted);margin-bottom:3px;font-variant-numeric:tabular-nums}
+.bars-l{display:flex;gap:4px;margin-top:6px}
+.bars-l span{flex:1;text-align:center;font-size:10.5px;color:var(--muted);min-width:0;overflow:hidden}
+.facts{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 16px}
+.fact{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+.fact:last-child{border-bottom:0}
+.fact span{color:var(--muted);font-size:15px}
+.fact b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.fact small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+
+/* ---------- tab bar ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:space-around;
+  padding:6px 4px env(safe-area-inset-bottom,0px);background:color-mix(in srgb,var(--surface) 88%,transparent);
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--line)}
+.tabbar button{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:52px;justify-content:center;color:var(--muted);font-size:11px;font-weight:500}
+.tabbar svg{width:25px;height:25px}
+.tabbar button[aria-current="page"]{color:var(--accent)}
+
+/* ---------- sheets ---------- */
+.sheet{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);animation:up .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+.sheet-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:54px;padding:0 8px;border-bottom:1px solid var(--line);background:var(--bg)}
+.sheet-bar .ttl{font-weight:600;font-size:17px;text-align:center}
+.bar-btn{min-height:44px;padding:0 10px;color:var(--accent);font-size:17px;justify-self:start}
+.bar-btn.r{justify-self:end}
+.bar-btn.strong{font-weight:600}
+.sheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 40px)}
+.sheet-body > .in{max-width:640px;margin:0 auto}
+
+/* detail */
+.d-head{display:flex;flex-direction:column;align-items:center;text-align:center}
+.d-head .cover{width:min(52vw,210px)}
+.d-title{font-family:var(--serif);font-weight:700;font-size:26px;line-height:1.2;margin:20px 0 4px}
+.d-author{color:var(--muted);font-size:17px}
+.d-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.tag{font-size:14px;padding:5px 11px;border-radius:9px;background:var(--surface2)}
+.fav-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:5px 11px;border-radius:9px;background:var(--surface2)}
+.fav-btn svg{width:16px;height:16px}
+.fav-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.block{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:16px}
+.block h3{font-size:14px;font-weight:600;color:var(--muted);margin:0 0 8px}
+.big-prog{font-family:var(--serif);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.big-prog span{font-size:17px;color:var(--muted);font-weight:400;font-family:var(--sans)}
+.pct{float:right;font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent)}
+.pg-row{display:flex;gap:10px;margin-top:12px}
+.pg-row input{flex:1;min-width:0}
+.text{white-space:pre-wrap;line-height:1.55;font-family:var(--serif);font-size:16px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;font-size:15px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+
+/* form */
+.field{margin-bottom:16px}
+.field > label,.flabel{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.inp{width:100%;min-height:48px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);outline:none;-webkit-appearance:none;appearance:none}
+.inp:focus{border-color:var(--accent)}
+textarea.inp{min-height:110px;resize:vertical;line-height:1.5}
+select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 21px,calc(100% - 14px) 21px;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cover-pick{display:flex;gap:16px;align-items:center}
+.cover-pick .cover{width:96px}
+.cover-pick .acts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.rating{display:flex;gap:4px}
+.rating button{flex:1;min-height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-variant-numeric:tabular-nums;font-size:15px}
+.rating button.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.switch-row{display:flex;justify-content:space-between;align-items:center;min-height:52px;padding:0 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.switch{width:52px;height:32px;border-radius:16px;background:var(--surface2);position:relative;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.err{color:var(--danger);font-size:14px;margin-top:6px}
+
+/* dialog + toast */
+.dlg-back{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.4);display:grid;place-items:center;padding:24px}
+.dlg{background:var(--surface);border-radius:18px;padding:20px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.dlg p{margin:0 0 18px;font-size:16px;line-height:1.45}
+.dlg .acts{display:flex;gap:10px}
+.dlg .acts .btn{flex:1}
+#toast{position:fixed;left:50%;bottom:calc(var(--tabh) + env(safe-area-inset-bottom,0px) + 16px);transform:translateX(-50%);z-index:80;
+  background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:15px;max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+.loading{min-height:60vh;display:grid;place-items:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<main id="app"><div class="loading">Відкриваю бібліотеку…</div></main>
+
+<nav class="tabbar" id="tabbar" aria-label="Розділи">
+  <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>Головна</button>
+  <button data-tab="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m16.5 5.2 3.8-1 3 15.5-3.8 1z" transform="translate(-2.5 0)"/></svg>Бібліотека</button>
+  <button data-tab="want"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg>Хочу</button>
+  <button data-tab="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg>Улюблені</button>
+  <button data-tab="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>Статистика</button>
+</nav>
+
+<div id="sheets"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="importInput" accept=".json,application/json" hidden>
+
+<script>
+/* =========================================================
+   Моя бібліотека — версія 1
+   Структура:
+   1) Модель книги (які поля зберігаємо)
+   2) Сховище (Store): акаунт Claude або цей пристрій
+   3) Екрани: Головна, Бібліотека, Хочу, Улюблені, Статистика
+   4) Картка книги, форма, налаштування, експорт/імпорт
+   ========================================================= */
+
+const SCHEMA_VERSION = 1;
+const STATUS = { want:'Хочу прочитати', reading:'Читаю', read:'Прочитана', dropped:'Кинула' };
+const STATUS_KEYS = ['want','reading','read','dropped'];
+const MONTHS = ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
+const MONTHS_FULL = ['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'];
+const COVER_COLORS = ['#35524A','#6B4E3D','#3F4E6B','#7A3E48','#4F6B3F','#5B4A6E','#8A6A2F','#2F5F6B','#6E3F5C'];
+
+const THIS_YEAR = new Date().getFullYear();
+const state = { tab:'home', q:'', status:'all', author:'', genre:'', minRating:0, sort:'title', dir:'asc', period:String(THIS_YEAR) };
+let books = [];
+let DL = null; // можливість зберігати файли
+
+/* ---------- дрібні помічники ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const find = id => books.find(b => b.id === id);
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function newId(){ return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function plural(n,one,few,many){ const a=n%10,b=n%100; if(a===1&&b!==11) return one; if(a>=2&&a<=4&&(b<12||b>14)) return few; return many; }
+function fmtDate(s){ if(!s) return '—'; const [y,m,d]=s.split('-'); return `${+d} ${['січ.','лют.','бер.','квіт.','трав.','черв.','лип.','серп.','вер.','жовт.','лист.','груд.'][+m-1]} ${y}`; }
+function fmtNum(n){ return Number(n||0).toLocaleString('uk-UA'); }
+function hash(s){ let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))|0; return Math.abs(h); }
+function pct(b){ if(b.status==='read') return 100; if(!b.pages) return 0; return Math.min(100, Math.round((b.currentPage||0)/b.pages*100)); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+
+function askConfirm(text, okLabel='Так', danger=false){
+  return new Promise(res=>{
+    const back=document.createElement('div'); back.className='dlg-back';
+    back.innerHTML=`<div class="dlg" role="dialog" aria-modal="true"><p>${esc(text)}</p><div class="acts">
+      <button class="btn btn-soft" data-v="0">Скасувати</button>
+      <button class="btn ${danger?'btn-danger':'btn-primary'}" data-v="1">${esc(okLabel)}</button></div></div>`;
+    back.addEventListener('click',e=>{ const v=e.target.closest('[data-v]'); if(v||e.target===back){ back.remove(); res(!!(v&&v.dataset.v==='1')); }});
+    document.body.appendChild(back);
+  });
+}
+
+/* =========================================================
+   1) МОДЕЛЬ КНИГИ
+   Поля isbn і quotes порожні — вони чекають на майбутні функції
+   (сканування штрихкоду, цитати), щоб не міняти структуру даних.
+   ========================================================= */
+function blankBook(){
+  return { id:newId(), title:'', author:'', genre:'', pages:0, currentPage:0, status:'want',
+    startDate:'', endDate:'', rating:null, description:'', notes:'', favorite:false, cover:'',
+    isbn:'', quotes:[], createdAt:'', updatedAt:'' };
+}
+function normalize(b, auto=true){
+  b.title=String(b.title||'').trim(); b.author=String(b.author||'').trim(); b.genre=String(b.genre||'').trim();
+  b.pages=Math.max(0,parseInt(b.pages)||0);
+  b.currentPage=Math.max(0,parseInt(b.currentPage)||0);
+  if(!STATUS[b.status]) b.status='want';
+  if(b.pages && b.currentPage>b.pages) b.currentPage=b.pages;
+  if(b.status==='read'){ if(b.pages) b.currentPage=b.pages; if(auto && !b.endDate) b.endDate=today(); }
+  if(b.status==='reading' && auto && !b.startDate) b.startDate=today();
+  const r=parseInt(b.rating); b.rating = r>=1 ? Math.min(10,r) : null;
+  b.favorite=!!b.favorite;
+  if(typeof b.cover!=='string' || !b.cover.startsWith('data:image/')) b.cover='';
+  if(!Array.isArray(b.quotes)) b.quotes=[];
+  if(typeof b.isbn!=='string') b.isbn='';
+  b.updatedAt=new Date().toISOString(); if(!b.createdAt) b.createdAt=b.updatedAt;
+  return b;
+}
+
+/* =========================================================
+   2) СХОВИЩЕ
+   Якщо сторінка відкрита в Claude — книги зберігаються у вашому
+   акаунті (особисто для вас, навіть якщо хтось отримає посилання).
+   Якщо файл відкрито окремо — у пам'яті цього браузера.
+   ========================================================= */
+const Store = {
+  mode:'loading', coll:null, metaRef:null, idb:null, meta:{},
+  async init(){
+    let db=null, user=null, uid=null;
+    if(window.claude && typeof window.claude.use==='function'){
+      try{
+        [db,user,DL] = await Promise.all([claude.use('db'),claude.use('user'),claude.use('downloads')]);
+        if(user) uid = await user.id();
+      }catch(e){}
+    }
+    if(db && uid){
+      this.mode='cloud';
+      this.metaRef = db.doc('data/users/'+uid+'/library');
+      this.coll = this.metaRef.collection('books');
+      try{ const m=await this.metaRef.get(); this.meta = m.exists ? {...m.data()} : {}; }catch(e){ this.meta={}; }
+      this.coll.onSnapshot(
+        snap => { books = snap.docs.map(d=>({...d.data(), id:d.id})); ready(); },
+        () => toast('Зв\u2019язок перервався. Перезавантажте сторінку.')
+      );
+    } else {
+      this.mode='local';
+      try{ this.idb = await idbOpen(); books = await idbAll(this.idb); }
+      catch(e){ this.mode='memory'; books=[]; toast('Цей браузер не дозволяє зберігати дані. Зробіть експорт перед закриттям.'); }
+      try{ this.meta = JSON.parse(localStorage.getItem('lib-meta')||'{}'); }catch(e){ this.meta={}; }
+      try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+      ready();
+    }
+  },
+  async put(b, silent=false){
+    const clean = clone(b);
+    if(this.mode==='cloud'){ await retry(()=>this.coll.doc(clean.id).set(clean)); return; }
+    if(this.mode==='local') await idbPut(this.idb, clean);
+    const i=books.findIndex(x=>x.id===clean.id); if(i>=0) books[i]=clean; else books.push(clean);
+    if(!silent) refresh();
+  },
+  async remove(id){
+    if(this.mode==='cloud'){ await retry(()=>this.coll.doc(id).delete()); return; }
+    if(this.mode==='local') await idbDel(this.idb, id);
+    books = books.filter(b=>b.id!==id); refresh();
+  },
+  async setMeta(patch){
+    Object.assign(this.meta, patch);
+    if(this.mode==='cloud'){ try{ await this.metaRef.set({...this.meta}); }catch(e){} }
+    else { try{ localStorage.setItem('lib-meta', JSON.stringify(this.meta)); }catch(e){} }
+  }
+};
+async function retry(fn){
+  for(let i=0;i<4;i++){
+    try{ return await fn(); }
+    catch(e){
+      const c=e&&e.code;
+      if(c==='quota_exceeded'){ toast('Досягнуто ліміт сховища. Видаліть непотрібні книги.'); throw e; }
+      if(i===3 || (c && c!=='unavailable' && c!=='resource_exhausted')){ toast('Не вдалося зберегти. Спробуйте ще раз.'); throw e; }
+      await sleep(600*(i+1)+Math.random()*300);
+    }
+  }
+}
+function idbOpen(){ return new Promise((res,rej)=>{ const r=indexedDB.open('moya-biblioteka',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('books',{keyPath:'id'}); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+function idbReq(db,mode,fn){ return new Promise((res,rej)=>{ const tx=db.transaction('books',mode); const rq=fn(tx.objectStore('books'));
+  tx.oncomplete=()=>res(rq&&rq.result); tx.onerror=()=>rej(tx.error); }); }
+const idbAll=db=>idbReq(db,'readonly',s=>s.getAll());
+const idbPut=(db,b)=>idbReq(db,'readwrite',s=>s.put(b));
+const idbDel=(db,id)=>idbReq(db,'readwrite',s=>s.delete(id));
+
+let isReady=false;
+function ready(){ isReady=true; refresh(); }
+function refresh(){ if(!isReady) return; renderMain(); sheets.forEach(s=>s.render && s.render()); }
+
+/* =========================================================
+   3) ЕКРАНИ
+   ========================================================= */
+function coverHTML(b, extra=''){
+  const fav = b.favorite && extra.includes('with-fav') ? `<span class="fav-mark" aria-label="Улюблена"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg></span>` : '';
+  if(b.cover) return `<div class="cover">${fav}<img src="${esc(b.cover)}" alt=""></div>`;
+  const c=COVER_COLORS[hash((b.title||'')+(b.author||''))%COVER_COLORS.length];
+  return `<div class="cover ph" style="--c:${c}">${fav}<span class="ph-t">${esc(b.title||'Без назви')}</span><span class="ph-a">${esc(b.author)}</span></div>`;
+}
+const pill = s => `<span class="pill st-${s}">${STATUS[s]}</span>`;
+const ICON_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
+
+function renderMain(){
+  document.querySelectorAll('#tabbar button').forEach(b=>{ if(b.dataset.tab===state.tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  const app=$('#app');
+  if(state.tab==='home') app.innerHTML=homeHTML();
+  else if(state.tab==='library'){ app.innerHTML=libraryShellHTML(); wireLibrary(); updateGrid(); }
+  else if(state.tab==='want') app.innerHTML=wantHTML();
+  else if(state.tab==='fav') app.innerHTML=favHTML();
+  else if(state.tab==='stats') app.innerHTML=statsHTML();
+}
+function setTab(t){ state.tab=t; renderMain(); window.scrollTo(0,0); }
+$('#tabbar').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b) setTab(b.dataset.tab); });
+
+function readPages(){ return books.reduce((s,b)=> s + (b.status==='read' ? (b.pages||0) : (b.status==='reading'||b.status==='dropped' ? (b.currentPage||0) : 0)), 0); }
+
+/* ---------- Головна ---------- */
+function homeHTML(){
+  const n=s=>books.filter(b=>b.status===s).length;
+  const reading=books.filter(b=>b.status==='reading').sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+  const recent=books.filter(b=>b.status==='read').sort((a,b)=>(b.endDate||'').localeCompare(a.endDate||'')).slice(0,12);
+  const last=Store.meta.lastBackup;
+  const stale = books.length>0 && (!last || (Date.now()-new Date(last).getTime()) > 30*864e5);
+  return `
+  <header class="top"><h1>Моя бібліотека</h1><button class="icon-btn" onclick="openSettings()" aria-label="Дані та налаштування">${ICON_GEAR}</button></header>
+  ${stale?`<div class="banner"><span>${last?'Остання резервна копія була понад місяць тому.':'Ви ще не робили резервну копію.'}</span><button onclick="exportJSON()">Зробити</button></div>`:''}
+  <section class="counts" aria-label="Підсумки">
+    <div><span class="num">${books.length}</span><span class="lbl">${plural(books.length,'книга','книги','книг')} усього</span></div>
+    <div><span class="num">${n('read')}</span><span class="lbl">прочитано</span></div>
+    <div><span class="num">${n('reading')}</span><span class="lbl">читаю зараз</span></div>
+    <div><span class="num">${n('want')}</span><span class="lbl">хочу прочитати</span></div>
+    <div class="wide"><span class="lbl">Прочитано сторінок</span><span class="num">${fmtNum(readPages())}</span></div>
+  </section>
+  <button class="big-add" onclick="openForm()"><span style="font-size:24px;line-height:1">+</span> Додати книгу</button>
+
+  <h2>Зараз читаю</h2>
+  ${reading.length ? reading.map(readingCard).join('') :
+    `<div class="empty">Поки нічого не читаєте. Відкрийте книгу зі списку «Хочу прочитати» і натисніть «Почати читати».</div>`}
+
+  <h2>Останні прочитані</h2>
+  ${recent.length ? `<div class="shelf">${recent.map(b=>`<button onclick="openBook('${b.id}')">${coverHTML(b)}<div class="t">${esc(b.title)}</div></button>`).join('')}</div>` :
+    `<div class="empty">Тут з'являться книги, які ви дочитали.</div>`}`;
+}
+function readingCard(b){
+  const p=pct(b);
+  return `<button class="reading" onclick="openBook('${b.id}')">${coverHTML(b)}
+    <div class="r-info"><div class="r-title">${esc(b.title)}</div><div class="r-author">${esc(b.author)}</div>
+    <div class="bar"><i style="width:${p}%"></i></div>
+    <div class="r-nums"><span><b>${b.currentPage||0}</b> / ${b.pages||'?'} сторінок</span><b>${p}%</b></div></div></button>`;
+}
+
+/* ---------- Бібліотека ---------- */
+function activeFilterCount(){ return (state.author?1:0)+(state.genre?1:0)+(state.minRating?1:0); }
+function libraryShellHTML(){
+  const chips=[['all','Усі'],...STATUS_KEYS.map(k=>[k,STATUS[k]])];
+  const fc=activeFilterCount();
+  return `
+  <header class="top"><h1>Бібліотека</h1><button class="icon-btn" onclick="openForm()" aria-label="Додати книгу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></header>
+  <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Назва, автор або жанр" value="${esc(state.q)}" autocomplete="off"></label>
+  <div class="chips" role="group" aria-label="Статус">${chips.map(([k,l])=>`<button class="chip" data-st="${k}" aria-pressed="${state.status===k}">${l}</button>`).join('')}</div>
+  <div class="toolbar"><span class="sub" id="countLbl"></span>
+    <button class="tool-btn" onclick="openFilters()">Фільтри й сортування${fc?`<span class="dot">${fc}</span>`:''}</button></div>
+  <div class="grid" id="grid"></div>`;
+}
+function wireLibrary(){
+  $('#q').addEventListener('input',e=>{ state.q=e.target.value; updateGrid(); });
+  document.querySelector('.chips').addEventListener('click',e=>{ const c=e.target.closest('[data-st]'); if(!c) return;
+    state.status=c.dataset.st; document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed', x===c)); updateGrid(); });
+}
+function sortVal(b,k){
+  if(k==='title'||k==='author'){ const v=(b[k]||'').trim(); return v||null; }
+  if(k==='rating') return b.rating||null;
+  if(k==='pages') return b.pages||null;
+  return b[k]||null;
+}
+function filtered(){
+  let list=books.slice();
+  const q=state.q.trim().toLowerCase();
+  if(q) list=list.filter(b=>`${b.title} ${b.author} ${b.genre}`.toLowerCase().includes(q));
+  if(state.status!=='all') list=list.filter(b=>b.status===state.status);
+  if(state.author) list=list.filter(b=>b.author===state.author);
+  if(state.genre) list=list.filter(b=>b.genre===state.genre);
+  if(state.minRating) list=list.filter(b=>(b.rating||0)>=state.minRating);
+  const k=state.sort, d=state.dir==='asc'?1:-1;
+  list.sort((a,b)=>{ const va=sortVal(a,k), vb=sortVal(b,k);
+    if(va==null&&vb==null) return 0; if(va==null) return 1; if(vb==null) return -1;
+    return (typeof va==='string' ? va.localeCompare(vb,'uk',{sensitivity:'base'}) : va-vb)*d; });
+  return list;
+}
+function bookCard(b){
+  return `<button class="card" onclick="openBook('${b.id}')">${coverHTML(b,'with-fav')}
+    <div class="title">${esc(b.title)}</div><div class="author">${esc(b.author)||'&nbsp;'}</div>
+    <div class="meta">${pill(b.status)}${b.rating?`<span class="rate">${b.rating}/10</span>`:''}</div></button>`;
+}
+function updateGrid(){
+  const list=filtered(), g=$('#grid'); if(!g) return;
+  $('#countLbl').textContent = list.length===books.length ? `${books.length} ${plural(books.length,'книга','книги','книг')}` : `Показано ${list.length} з ${books.length}`;
+  if(!books.length){ g.innerHTML=`<div class="empty" style="grid-column:1/-1">Бібліотека порожня. Натисніть «+», щоб додати першу книгу.</div>`; return; }
+  g.innerHTML = list.length ? list.map(bookCard).join('') : `<div class="empty" style="grid-column:1/-1">Нічого не знайдено. Змініть пошук або фільтри.</div>`;
+}
+function uniq(field){ return [...new Set(books.map(b=>(b[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uk')); }
+function openFilters(){
+  const s=openSheet({title:'Фільтри', left:'Скинути', right:'Готово', onLeft:()=>{ Object.assign(state,{author:'',genre:'',minRating:0,sort:'title',dir:'asc'}); closeSheet(s); renderMain(); }, onRight:()=>closeSheet(s)});
+  const opt=(v,l,cur)=>`<option value="${esc(v)}" ${v===cur?'selected':''}>${esc(l)}</option>`;
+  s.body.innerHTML=`<div class="in">
+    <div class="field"><label for="fA">Автор</label><select id="fA" class="inp">${opt('','Усі автори',state.author)}${uniq('author').map(a=>opt(a,a,state.author)).join('')}</select></div>
+    <div class="field"><label for="fG">Жанр</label><select id="fG" class="inp">${opt('','Усі жанри',state.genre)}${uniq('genre').map(a=>opt(a,a,state.genre)).join('')}</select></div>
+    <div class="field"><label for="fR">Оцінка</label><select id="fR" class="inp">${opt('0','Будь-яка',String(state.minRating))}${[10,9,8,7,6,5].map(r=>opt(String(r),r===10?'Тільки 10':`від ${r} і вище`,String(state.minRating))).join('')}</select></div>
+    <div class="field"><label for="fS">Сортувати за</label><select id="fS" class="inp">
+      ${[['title','Назвою'],['author','Автором'],['rating','Оцінкою'],['startDate','Датою початку'],['endDate','Датою завершення'],['pages','Кількістю сторінок']].map(([v,l])=>opt(v,l,state.sort)).join('')}</select></div>
+    <div class="field"><span class="flabel">Порядок</span><div class="seg" id="fD">
+      <button data-d="asc" aria-pressed="${state.dir==='asc'}">За зростанням</button><button data-d="desc" aria-pressed="${state.dir==='desc'}">За спаданням</button></div></div>
+  </div>`;
+  const apply=()=>{ state.author=$('#fA').value; state.genre=$('#fG').value; state.minRating=+$('#fR').value; state.sort=$('#fS').value; renderMain(); };
+  ['#fA','#fG','#fR','#fS'].forEach(id=>s.body.querySelector(id).addEventListener('change',apply));
+  s.body.querySelector('#fD').addEventListener('click',e=>{ const b=e.target.closest('[data-d]'); if(!b) return; state.dir=b.dataset.d;
+    s.body.querySelectorAll('#fD button').forEach(x=>x.setAttribute('aria-pressed',x===b)); renderMain(); });
+}
+
+/* ---------- Хочу прочитати ---------- */
+function wantHTML(){
+  const list=books.filter(b=>b.status==='want').sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  return `<header class="top"><h1>Хочу прочитати</h1></header>
+  <p class="sub" style="margin:0 0 6px">${list.length} ${plural(list.length,'книга','книги','книг')} у черзі</p>
+  ${list.length ? list.map(b=>`<div class="row">${coverHTML(b)}
+      <div class="r-info" onclick="openBook('${b.id}')"><div class="r-title">${esc(b.title)}</div><div class="r-author">${esc(b.author)}${b.pages?`<br>${b.pages} с.`:''}</div></div>
+      <button class="btn btn-primary" onclick="startReading('${b.id}')">Почати читати</button></div>`).join('')
+    : `<div class="empty">Список порожній. Додайте книгу зі статусом «Хочу прочитати».</div>`}`;
+}
+
+/* ---------- Улюблені ---------- */
+function favHTML(){
+  const list=books.filter(b=>b.favorite).sort((a,b)=>a.title.localeCompare(b.title,'uk'));
+  return `<header class="top"><h1>Улюблені</h1></header>
+  ${list.length ? `<div class="grid">${list.map(bookCard).join('')}</div>` :
+    `<div class="empty">Відкрийте будь-яку книгу й натисніть «Улюблена» — вона з'явиться тут.</div>`}`;
+}
+
+/* ---------- Статистика ---------- */
+function bars(values, labels){
+  const max=Math.max(1,...values);
+  return `<div class="chart"><div class="bars">${values.map(v=>`<div><span class="v">${v?fmtNum(v):''}</span><i class="${v?'':'zero'}" style="height:${v?Math.max(4,v/max*100):2}%"></i></div>`).join('')}</div>
+    <div class="bars-l">${labels.map(l=>`<span>${l}</span>`).join('')}</div></div>`;
+}
+function statsHTML(){
+  const periods=[[String(THIS_YEAR),String(THIS_YEAR)],[String(THIS_YEAR-1),String(THIS_YEAR-1)],['all','Весь час']];
+  const allRead=books.filter(b=>b.status==='read');
+  const read = state.period==='all' ? allRead : allRead.filter(b=>(b.endDate||'').startsWith(state.period));
+  const pages=read.reduce((s,b)=>s+(b.pages||0),0);
+  const rated=read.filter(b=>b.rating);
+  const avgRating=rated.length ? (rated.reduce((s,b)=>s+b.rating,0)/rated.length) : null;
+  const withPages=read.filter(b=>b.pages>0).sort((a,b)=>b.pages-a.pages);
+  const longest=withPages[0], shortest=withPages[withPages.length-1];
+  const durs=read.filter(b=>b.startDate&&b.endDate).map(b=>Math.round((new Date(b.endDate)-new Date(b.startDate))/864e5)+1).filter(d=>d>0);
+  const avgDays=durs.length ? Math.round(durs.reduce((a,b)=>a+b,0)/durs.length) : null;
+  const noDate = state.period==='all' ? 0 : 0;
+  const undated = allRead.filter(b=>!b.endDate).length;
+
+  let charts='';
+  if(state.period!=='all'){
+    const cnt=Array(12).fill(0), pg=Array(12).fill(0);
+    read.forEach(b=>{ const m=+b.endDate.slice(5,7)-1; if(m>=0&&m<12){ cnt[m]++; pg[m]+=b.pages||0; } });
+    charts=`<h2>Книги за місяцями</h2>${bars(cnt,MONTHS)}<h2>Сторінки за місяцями</h2>${bars(pg,MONTHS)}`;
+  } else {
+    const years={}; allRead.forEach(b=>{ const y=(b.endDate||'').slice(0,4); if(y) { years[y]=years[y]||{c:0,p:0}; years[y].c++; years[y].p+=b.pages||0; } });
+    const ys=Object.keys(years).sort().slice(-8);
+    charts = ys.length ? `<h2>Книги за роками</h2>${bars(ys.map(y=>years[y].c),ys.map(y=>"'"+y.slice(2)))}<h2>Сторінки за роками</h2>${bars(ys.map(y=>years[y].p),ys.map(y=>"'"+y.slice(2)))}` : '';
+  }
+  const bk=b=>b?`<b>${esc(b.title)}<small>${fmtNum(b.pages)} с.</small></b>`:'<b>—</b>';
+  return `<header class="top"><h1>Статистика</h1></header>
+  <div class="seg" id="per">${periods.map(([v,l])=>`<button data-p="${v}" aria-pressed="${state.period===v}">${l}</button>`).join('')}</div>
+  <section class="counts" style="margin-top:16px">
+    <div><span class="num">${read.length}</span><span class="lbl">${plural(read.length,'книга прочитана','книги прочитано','книг прочитано')}</span></div>
+    <div><span class="num">${fmtNum(pages)}</span><span class="lbl">сторінок</span></div>
+    <div class="wide" style="border-bottom:0"><span class="lbl">Середня оцінка</span><span class="num">${avgRating?avgRating.toFixed(1).replace('.',','):'—'}</span></div>
+  </section>
+  ${charts}
+  <h2>Рекорди</h2>
+  <div class="facts">
+    <div class="fact"><span>Найдовша книга</span>${bk(longest)}</div>
+    <div class="fact"><span>Найкоротша книга</span>${bk(withPages.length>1?shortest:null)}</div>
+    <div class="fact"><span>У середньому на книгу</span><b>${avgDays!=null?`${avgDays} ${plural(avgDays,'день','дні','днів')}`:'—'}</b></div>
+  </div>
+  ${undated && state.period!=='all' ? `<p class="hint">${undated} ${plural(undated,'прочитана книга','прочитані книги','прочитаних книг')} без дати завершення — вони враховані лише у «Весь час».</p>`:''}
+  ${!read.length ? `<p class="hint" style="margin-top:14px">Статистика з'явиться, коли ви позначите книгу як «Прочитана».</p>`:''}`;
+}
+document.addEventListener('click',e=>{ const p=e.target.closest('#per [data-p]'); if(p){ state.period=p.dataset.p; renderMain(); } });
+
+/* =========================================================
+   4) ВІКНА: картка книги, форма, налаштування
+   ========================================================= */
+const sheets=[];
+function openSheet({title='', left='Закрити', right='', onLeft, onRight}={}){
+  const el=document.createElement('div'); el.className='sheet'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+  el.innerHTML=`<div class="sheet-bar"><button class="bar-btn" data-l>${esc(left)}</button><div class="ttl">${esc(title)}</div>${right?`<button class="bar-btn r strong" data-r>${esc(right)}</button>`:'<span></span>'}</div><div class="sheet-body"></div>`;
+  const s={el, body:el.querySelector('.sheet-body'), render:null};
+  el.querySelector('[data-l]').onclick=()=> onLeft ? onLeft() : closeSheet(s);
+  if(right) el.querySelector('[data-r]').onclick=()=> onRight && onRight();
+  $('#sheets').appendChild(el); sheets.push(s); document.body.style.overflow='hidden';
+  return s;
+}
+function closeSheet(s){ const i=sheets.indexOf(s); if(i>=0) sheets.splice(i,1); s.el.remove(); if(!sheets.length) document.body.style.overflow=''; }
+
+/* ---------- Картка книги ---------- */
+function openBook(id){
+  const s=openSheet({title:'', right:'Редагувати', onRight:()=>{ const b=find(id); if(b) openForm(b); }});
+  s.render=()=>{ const b=find(id); if(!b){ closeSheet(s); return; } s.body.innerHTML=detailHTML(b); };
+  s.render();
+}
+function detailHTML(b){
+  const p=pct(b);
+  const heart=`<svg viewBox="0 0 24 24" fill="${b.favorite?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg>`;
+  let progress='';
+  if(b.status==='reading'){
+    progress=`<div class="block"><h3>Прогрес</h3>
+      <span class="pct">${p}%</span><div class="big-prog">${b.currentPage||0} <span>/ ${b.pages||'?'} сторінок</span></div>
+      <div class="bar"><i style="width:${p}%"></i></div>
+      <div class="pg-row"><input class="inp" id="pg" type="number" inputmode="numeric" min="0" ${b.pages?`max="${b.pages}"`:''} value="${b.currentPage||0}" aria-label="Поточна сторінка">
+        <button class="btn btn-soft" onclick="savePage('${b.id}')">Оновити</button></div>
+      <button class="btn btn-primary btn-wide" style="margin-top:12px" onclick="finishBook('${b.id}')">Я дочитала</button></div>`;
+  } else if(b.status==='read'){
+    progress=`<div class="block"><h3>Прогрес</h3><span class="pct">100%</span><div class="big-prog">${b.pages||'—'} <span>сторінок прочитано</span></div><div class="bar"><i style="width:100%"></i></div></div>`;
+  } else if(b.status==='want'){
+    progress=`<button class="btn btn-primary btn-wide" style="margin-top:20px" onclick="startReading('${b.id}')">Почати читати</button>`;
+  }
+  return `<div class="in">
+  <div class="d-head">${coverHTML(b)}
+    <div class="d-title">${esc(b.title)}</div><div class="d-author">${esc(b.author)||'Автор не вказаний'}</div>
+    <div class="d-tags">${b.genre?`<span class="tag">${esc(b.genre)}</span>`:''}${b.rating?`<span class="tag rate">${b.rating}/10</span>`:''}
+      <button class="fav-btn" aria-pressed="${b.favorite}" onclick="toggleFav('${b.id}')">${heart}${b.favorite?'Улюблена':'До улюблених'}</button></div>
+  </div>
+  <div class="block"><h3>Статус</h3><div class="seg">${STATUS_KEYS.map(k=>`<button aria-pressed="${b.status===k}" onclick="setStatus('${b.id}','${k}')" style="font-size:13px">${STATUS[k]}</button>`).join('')}</div></div>
+  ${progress}
+  <div class="block"><dl class="kv">
+    <dt>Сторінок</dt><dd>${b.pages||'—'}</dd>
+    <dt>Почала</dt><dd>${fmtDate(b.startDate)}</dd>
+    <dt>Завершила</dt><dd>${fmtDate(b.endDate)}</dd>
+    <dt>Оцінка</dt><dd>${b.rating?b.rating+' з 10':'—'}</dd></dl></div>
+  ${b.description?`<div class="block"><h3>Про книгу</h3><div class="text">${esc(b.description)}</div></div>`:''}
+  ${b.notes?`<div class="block"><h3>Мої враження</h3><div class="text">${esc(b.notes)}</div></div>`:''}
+  <button class="btn btn-danger btn-wide" style="margin-top:28px" onclick="deleteBook('${b.id}')">Видалити книгу</button>
+  </div>`;
+}
+async function saveBook(b){ await Store.put(normalize(b)); }
+async function startReading(id){ const b=clone(find(id)); b.status='reading'; b.startDate=today(); b.currentPage=0; b.endDate=''; await saveBook(b); toast('Приємного читання!'); }
+async function finishBook(id){ const b=clone(find(id)); b.status='read'; b.endDate=today(); await saveBook(b); toast('Книгу позначено як прочитану'); }
+async function toggleFav(id){ const b=clone(find(id)); b.favorite=!b.favorite; await saveBook(b); }
+async function setStatus(id,st){ const b=clone(find(id)); if(b.status===st) return;
+  if(st==='reading' && b.status==='want'){ b.startDate=b.startDate||today(); b.currentPage=0; }
+  if(st==='read') b.endDate=b.endDate||today();
+  b.status=st; await saveBook(b); }
+async function savePage(id){ const b=clone(find(id)); const v=parseInt($('#pg').value);
+  if(isNaN(v)||v<0){ toast('Введіть номер сторінки'); return; }
+  if(b.pages && v>b.pages){ toast(`У книзі лише ${b.pages} сторінок`); return; }
+  b.currentPage=v;
+  if(b.pages && v===b.pages){ if(await askConfirm('Це остання сторінка. Позначити книгу як прочитану?','Так, дочитала')){ b.status='read'; b.endDate=today(); } }
+  await saveBook(b); toast('Прогрес збережено'); }
+async function deleteBook(id){ const b=find(id); if(!b) return;
+  if(!await askConfirm(`Видалити «${b.title}»? Цю дію не можна скасувати.`,'Видалити',true)) return;
+  await Store.remove(id); toast('Книгу видалено'); }
+
+/* ---------- Форма: додати / редагувати ---------- */
+function openForm(book){
+  const isNew=!book; const b = isNew ? blankBook() : clone(book);
+  const s=openSheet({title:isNew?'Нова книга':'Редагування', left:'Скасувати', right:'Зберегти', onRight:()=>submit()});
+  const v=x=>esc(x??'');
+  s.body.innerHTML=`<div class="in">
+  <div class="field"><span class="flabel">Обкладинка</span><div class="cover-pick"><div id="cvPrev"></div>
+    <div class="acts"><label class="btn btn-soft" style="cursor:pointer">Вибрати фото<input id="cvIn" type="file" accept="image/*" hidden></label>
+    <button class="btn btn-danger" id="cvDel" ${b.cover?'':'hidden'}>Прибрати</button></div></div>
+    <p class="hint">Фото автоматично зменшується, щоб не займати багато місця.</p></div>
+  <div class="field"><label for="fTitle">Назва *</label><input class="inp" id="fTitle" value="${v(b.title)}" autocomplete="off"><div class="err" id="tErr" hidden>Вкажіть назву книги</div></div>
+  <div class="field"><label for="fAuthor">Автор</label><input class="inp" id="fAuthor" value="${v(b.author)}" list="dlA" autocomplete="off"></div>
+  <div class="field"><label for="fGenre">Жанр</label><input class="inp" id="fGenre" value="${v(b.genre)}" list="dlG" autocomplete="off"></div>
+  <datalist id="dlA">${uniq('author').map(a=>`<option value="${esc(a)}">`).join('')}</datalist>
+  <datalist id="dlG">${uniq('genre').map(a=>`<option value="${esc(a)}">`).join('')}</datalist>
+  <div class="field"><label for="fStatus">Статус</label><select class="inp" id="fStatus">${STATUS_KEYS.map(k=>`<option value="${k}" ${b.status===k?'selected':''}>${STATUS[k]}</option>`).join('')}</select></div>
+  <div class="two">
+    <div class="field"><label for="fPages">Сторінок</label><input class="inp" id="fPages" type="number" inputmode="numeric" min="0" value="${b.pages||''}"></div>
+    <div class="field"><label for="fCur">Поточна сторінка</label><input class="inp" id="fCur" type="number" inputmode="numeric" min="0" value="${b.currentPage||''}"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label for="fStart">Дата початку</label><input class="inp" id="fStart" type="date" value="${v(b.startDate)}"></div>
+    <div class="field"><label for="fEnd">Дата завершення</label><input class="inp" id="fEnd" type="date" value="${v(b.endDate)}"></div>
+  </div>
+  <div class="field"><span class="flabel">Оцінка</span><div class="rating" id="fRate">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button type="button" data-r="${n}" class="${b.rating===n?'on':''}" aria-pressed="${b.rating===n}">${n}</button>`).join('')}</div>
+    <p class="hint">Натисніть ще раз, щоб прибрати оцінку.</p></div>
+  <div class="field"><label for="fDesc">Короткий опис</label><textarea class="inp" id="fDesc">${v(b.description)}</textarea></div>
+  <div class="field"><label for="fNotes">Мої враження та нотатки</label><textarea class="inp" id="fNotes">${v(b.notes)}</textarea></div>
+  <div class="field"><div class="switch-row"><span>Улюблена</span><button type="button" class="switch" role="switch" id="fFav" aria-checked="${b.favorite}" aria-label="Улюблена"></button></div></div>
+  <button class="btn btn-primary btn-wide" id="saveBottom">Зберегти книгу</button>
+  </div>`;
+  const q=sel=>s.body.querySelector(sel);
+  const drawCover=()=>{ q('#cvPrev').innerHTML=coverHTML({...b,title:q('#fTitle')?.value||b.title,author:q('#fAuthor')?.value||b.author}); q('#cvDel').hidden=!b.cover; };
+  drawCover();
+  q('#fTitle').addEventListener('input',()=>{ if(!b.cover) drawCover(); });
+  q('#cvIn').addEventListener('change',async e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return;
+    try{ b.cover=await compressImage(f); drawCover(); }catch(err){ toast('Не вдалося відкрити це фото. Спробуйте інше.'); } });
+  q('#cvDel').addEventListener('click',()=>{ b.cover=''; drawCover(); });
+  q('#fRate').addEventListener('click',e=>{ const r=e.target.closest('[data-r]'); if(!r) return; const n=+r.dataset.r; b.rating = b.rating===n ? null : n;
+    q('#fRate').querySelectorAll('button').forEach(x=>{ const on=+x.dataset.r===b.rating; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on); }); });
+  q('#fFav').addEventListener('click',e=>{ b.favorite=!b.favorite; e.currentTarget.setAttribute('aria-checked',b.favorite); });
+  q('#saveBottom').addEventListener('click',()=>submit());
+  let busy=false;
+  async function submit(){
+    if(busy) return;
+    b.title=q('#fTitle').value.trim();
+    if(!b.title){ q('#tErr').hidden=false; q('#fTitle').focus(); return; }
+    b.author=q('#fAuthor').value; b.genre=q('#fGenre').value; b.status=q('#fStatus').value;
+    b.pages=q('#fPages').value; b.currentPage=q('#fCur').value; b.startDate=q('#fStart').value; b.endDate=q('#fEnd').value;
+    b.description=q('#fDesc').value; b.notes=q('#fNotes').value;
+    if(b.startDate && b.endDate && b.endDate<b.startDate){ toast('Дата завершення раніша за дату початку'); return; }
+    busy=true;
+    try{ await saveBook(b); closeSheet(s); toast(isNew?'Книгу додано':'Зміни збережено'); }catch(e){} finally{ busy=false; }
+  }
+}
+function compressImage(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(); fr.onload=()=>{
+      const img=new Image(); img.onerror=()=>rej();
+      img.onload=()=>{
+        const enc=(max,qual)=>{ const sc=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+          const c=document.createElement('canvas'); c.width=Math.round(img.naturalWidth*sc); c.height=Math.round(img.naturalHeight*sc);
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height); return c.toDataURL('image/jpeg',qual); };
+        let out=enc(720,.78); if(out.length>180000) out=enc(560,.66); if(out.length>180000) out=enc(420,.6);
+        res(out);
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- Налаштування, експорт, імпорт ---------- */
+function getTheme(){ try{ return localStorage.getItem('lib-theme')||'auto'; }catch(e){ return 'auto'; } }
+function applyTheme(t){ if(t==='auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t; }
+applyTheme(getTheme());
+
+function openSettings(){
+  const s=openSheet({title:'Дані та налаштування'});
+  s.render=()=>{
+    const t=getTheme(), last=Store.meta.lastBackup;
+    const where = Store.mode==='cloud' ? 'Книги зберігаються у вашому акаунті Claude і доступні з будь-якого пристрою, де ви входите в акаунт. Вони приватні, навіть якщо ви комусь надішлете посилання.'
+      : Store.mode==='local' ? 'Книги зберігаються в пам\u2019яті цього браузера на цьому пристрої. Регулярно робіть резервну копію.'
+      : 'Дані не зберігаються між відкриттями. Обов\u2019язково експортуйте бібліотеку.';
+    s.body.innerHTML=`<div class="in">
+      <div class="block" style="margin-top:0"><h3>Тема</h3><div class="seg" id="thm">
+        ${[['auto','Як на iPhone'],['light','Світла'],['dark','Темна']].map(([v,l])=>`<button data-t="${v}" aria-pressed="${t===v}">${l}</button>`).join('')}</div></div>
+      <div class="block"><h3>Де зберігаються дані</h3><p style="margin:0;font-size:15px">${where}</p></div>
+      <div class="block"><h3>Резервна копія</h3>
+        <p style="margin:0 0 12px;font-size:15px">Остання: <b>${last?fmtDate(last.slice(0,10)):'ще не робили'}</b>. У бібліотеці ${books.length} ${plural(books.length,'книга','книги','книг')}.</p>
+        <button class="btn btn-primary btn-wide" onclick="exportJSON()">Експорт бібліотеки</button>
+        <p class="hint">Повна копія з обкладинками й нотатками (файл .json). Збережіть її у «Файли» або iCloud Drive.</p>
+        <button class="btn btn-soft btn-wide" style="margin-top:12px" onclick="pickImport()">Імпорт бібліотеки</button>
+        <p class="hint">Відновлює книги з файлу експорту. Наявні книги не зникнуть: однакові оновляться, нові додадуться.</p>
+        <button class="btn btn-soft btn-wide" style="margin-top:12px" onclick="exportCSV()">Таблиця для Excel (.csv)</button>
+        <p class="hint">Для перенесення в інші сервіси. Обкладинки в таблицю не потрапляють.</p>
+      </div></div>`;
+    s.body.querySelector('#thm').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return;
+      try{ localStorage.setItem('lib-theme',b.dataset.t); }catch(err){} applyTheme(b.dataset.t); s.render(); });
+  };
+  s.render();
+}
+async function saveFile(name, blob){
+  if(DL){
+    try{ await DL.save({filename:name, data:blob}); return true; }
+    catch(e){ const c=e&&e.code; if(c==='declined') return false;
+      if(c==='rate_limited'){ toast('Зачекайте кілька секунд і спробуйте ще раз'); return false; } }
+  }
+  try{ const file=new File([blob],name,{type:blob.type});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file]}); return true; } }
+  catch(e){ if(e&&e.name==='AbortError') return false; }
+  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },3000); return true; }
+  catch(e){ toast('Не вдалося зберегти файл'); return false; }
+}
+async function exportJSON(){
+  const data={ app:'moya-biblioteka', schemaVersion:SCHEMA_VERSION, exportedAt:new Date().toISOString(), count:books.length, books };
+  const ok=await saveFile(`biblioteka-${today()}.json`, new Blob([JSON.stringify(data)],{type:'application/json'}));
+  if(ok){ await Store.setMeta({lastBackup:new Date().toISOString()}); refresh(); toast('Резервну копію збережено'); }
+}
+async function exportCSV(){
+  const cols=[['Назва','title'],['Автор','author'],['Жанр','genre'],['Сторінок','pages'],['Поточна сторінка','currentPage'],['Прогрес %',b=>pct(b)],
+    ['Статус',b=>STATUS[b.status]],['Дата початку','startDate'],['Дата завершення','endDate'],['Оцінка','rating'],['Улюблена',b=>b.favorite?'так':''],['Опис','description'],['Нотатки','notes']];
+  const cell=v=>{ const s=String(v??''); return /[",;\n\r]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const rows=[cols.map(c=>c[0]).join(','), ...books.map(b=>cols.map(([,k])=>cell(typeof k==='function'?k(b):b[k])).join(','))];
+  const ok=await saveFile(`biblioteka-${today()}.csv`, new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv'}));
+  if(ok) toast('Таблицю збережено');
+}
+function pickImport(){ $('#importInput').click(); }
+$('#importInput').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  let data; try{ data=JSON.parse(await f.text()); }catch(err){ toast('Це не файл експорту бібліотеки (потрібен .json)'); return; }
+  const list=(Array.isArray(data)?data:data&&data.books)||[];
+  const valid=list.filter(x=>x&&typeof x==='object'&&typeof x.title==='string'&&x.title.trim());
+  if(!valid.length){ toast('У файлі не знайдено жодної книги'); return; }
+  if(!await askConfirm(`У файлі ${valid.length} ${plural(valid.length,'книга','книги','книг')}. Додати до бібліотеки?`,'Імпортувати')) return;
+  let done=0;
+  for(const x of valid){
+    const b=Object.assign(blankBook(), x);
+    if(typeof b.id!=='string' || !/^[A-Za-z0-9_-]{1,60}$/.test(b.id)) b.id=newId();
+    ['title','author','genre','description','notes','startDate','endDate'].forEach(k=>{ b[k]=String(b[k]??'').slice(0,20000); });
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(b.startDate)) b.startDate=''; if(!/^\d{4}-\d{2}-\d{2}$/.test(b.endDate)) b.endDate='';
+    if(typeof b.cover==='string' && b.cover.length>240000) b.cover='';
+    const createdAt=b.createdAt; normalize(b,false); if(createdAt) b.createdAt=createdAt;
+    try{ await Store.put(b,true); done++; }catch(err){ break; }
+    if(done%10===0) toast(`Імпортовано ${done} з ${valid.length}…`);
+  }
+  refresh(); toast(`Готово: імпортовано ${done} ${plural(done,'книгу','книги','книг')}`);
+});
+
+Store.init();
+</script>
+</body>
