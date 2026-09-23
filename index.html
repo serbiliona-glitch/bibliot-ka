@@ -380,7 +380,7 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 5
    ========================================================= */
 
 const SCHEMA_VERSION = 1;
-const APP_VERSION = '1.6';
+const APP_VERSION = '1.7';
 const STATUS = { want:'Хочу прочитати', reading:'Читаю', read:'Прочитана', dropped:'Кинула' };
 const STATUS_KEYS = ['want','reading','read','dropped'];
 const MONTHS = ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
@@ -991,11 +991,12 @@ function fromGoogle(v){
   return { title:(v.title||'')+(v.subtitle?': '+v.subtitle:''), author:(v.authors||[]).join(', '), pages:v.pageCount||0,
     description:stripHtml(v.description).slice(0,4000), coverUrl:gThumb(v.imageLinks), isbn:i13?i13.identifier:'', year:(v.publishedDate||'').slice(0,4) };
 }
-let googleBlocked=false;
+let googleBlocked=false, netErr={g:'',o:''};
+const errText = e => { const m=String(e&&e.message||e); return /^\d+$/.test(m) ? 'код '+m : m==='blocked' ? 'обмеження запитів' : 'немає з\u2019єднання'; };
 async function olSearch(text, author=''){
   const url = author ? `https://openlibrary.org/search.json?limit=10&title=${encodeURIComponent(text)}&author=${encodeURIComponent(author)}`
                      : `https://openlibrary.org/search.json?limit=12&q=${encodeURIComponent(text)}`;
-  const j=await getJSON(url+'&fields=title,author_name,number_of_pages_median,cover_i,isbn,first_publish_year');
+  let j; try{ j=await getJSON(url+'&fields=title,author_name,number_of_pages_median,cover_i,isbn,first_publish_year'); }catch(e){ netErr.o=errText(e); throw e; }
   return (j.docs||[]).map(d=>({ title:d.title||'', author:(d.author_name||[]).slice(0,3).join(', '), pages:d.number_of_pages_median||0,
     coverUrl: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg` : '', isbn:((d.isbn||[]).find(x=>x.length===13)||''),
     description:'', year: d.first_publish_year?String(d.first_publish_year):'' })).filter(r=>r.title);
@@ -1004,7 +1005,7 @@ async function googleSearch(q, n=10){
   if(googleBlocked) throw new Error('blocked');
   try{ const j=await getJSON(`https://www.googleapis.com/books/v1/volumes?maxResults=${n}&printType=books&q=`+encodeURIComponent(q));
     return (j.items||[]).map(i=>fromGoogle(i.volumeInfo)).filter(r=>r.title); }
-  catch(e){ if(/^(429|403)$/.test(String(e.message))) googleBlocked=true; throw e; }
+  catch(e){ netErr.g=errText(e); if(/^(429|403)$/.test(String(e.message))) googleBlocked=true; throw e; }
 }
 async function getJSON(url){ const r=await fetch(url); if(!r.ok) throw new Error(r.status); return r.json(); }
 async function lookupISBN(isbn){
@@ -1088,7 +1089,7 @@ function openSearch(onPick, initial=''){
       q('#srS').textContent = found.length ? 'Натисніть на свою книгу:' : 'Нічого не знайдено. Спробуйте інші слова або лише прізвище автора.';
       q('#srR').innerHTML=found.map((r,i)=>`<button class="res" data-i="${i}">${r.coverUrl?`<img src="${esc(r.coverUrl)}" alt="" onerror="this.style.visibility='hidden'">`:'<span class="noimg"></span>'}
         <span><div class="rt">${esc(r.title)}</div><div class="ra">${esc(r.author||'Автор невідомий')}${r.year?`, ${r.year}`:''}${r.pages?`, ${r.pages} с.`:''}</div></span></button>`).join('');
-    }catch(e){ q('#srS').textContent='Не вдалося зв\u2019язатися з базою книг. Перевірте інтернет і спробуйте ще раз.'; }
+    }catch(e){ q('#srS').textContent=`Не вдалося зв\u2019язатися з базами книг (Google: ${netErr.g||'—'}, Open Library: ${netErr.o||'—'}). Перевірте інтернет і спробуйте ще раз.`; }
   }
   q('#srGo').addEventListener('click',go);
   q('#srQ').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); go(); } });
@@ -1150,7 +1151,7 @@ async function enrichAll(statusEl){
       await sleep(300);
     }
   } finally { enriching=false; }
-  const msg = limited ? `Доповнено ${found} ${plural(found,'книгу','книги','книг')}. Не вдається з\u2019єднатися з базами книг. Перевірте інтернет (Wi‑Fi або мобільні дані) і натисніть ще раз: знайдене вже збережено.` : `Готово: доповнено ${found} ${plural(found,'книгу','книги','книг')}.` + (miss.length?` Не знайдено ${miss.length}: для них відкрийте книгу й натисніть «Знайти обкладинку й сторінки».`:'');
+  const msg = limited ? `Доповнено ${found} ${plural(found,'книгу','книги','книг')}. Не вдається з\u2019єднатися з базами книг. Перевірте інтернет (Wi‑Fi або мобільні дані) і натисніть ще раз: знайдене вже збережено. (Google: ${netErr.g||'—'}, Open Library: ${netErr.o||'—'})` : `Готово: доповнено ${found} ${plural(found,'книгу','книги','книг')}.` + (miss.length?` Не знайдено ${miss.length}: для них відкрийте книгу й натисніть «Знайти обкладинку й сторінки».`:'');
   enrichMsg=msg; refresh(); say(msg); toast(`Доповнено ${found} ${plural(found,'книгу','книги','книг')}`);
 }
 function findForBook(id){
