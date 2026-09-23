@@ -530,7 +530,7 @@ const idbDel=(db,id)=>idbReq(db,'readwrite',s=>s.delete(id));
 
 let isReady=false;
 function ready(){ isReady=true; refresh(); }
-function refresh(){ if(!isReady) return; renderMain(); sheets.forEach(s=>s.render && s.render()); }
+function refresh(){ if(!isReady) return; renderMain(); sheets.forEach(s=>s.render && !(enriching && s.isSettings) && s.render()); }
 
 /* =========================================================
    3) ЕКРАНИ
@@ -889,7 +889,8 @@ function detailHTML(b){
   <div class="block"><h3>Цитати</h3>
     ${(b.quotes||[]).map((q,i)=>`<div class="qitem"><p>${esc(q.text)}${q.page?`<small>сторінка ${q.page}</small>`:''}</p><button class="qdel" aria-label="Видалити цитату" onclick="delQuote('${b.id}',${i})">✕</button></div>`).join('')}
     <button class="btn btn-soft btn-wide" style="margin-top:${(b.quotes||[]).length?10:0}px" onclick="addQuote('${b.id}')">+ Додати цитату</button></div>
-  <button class="btn btn-danger btn-wide" style="margin-top:28px" onclick="deleteBook('${b.id}')">Видалити книгу</button>
+  <button class="btn btn-soft btn-wide" style="margin-top:16px" onclick="findForBook('${b.id}')">${!b.cover||!b.pages?'Знайти обкладинку й сторінки':'Замінити обкладинку й сторінки з інтернету'}</button>
+  <button class="btn btn-danger btn-wide" style="margin-top:12px" onclick="deleteBook('${b.id}')">Видалити книгу</button>
   </div>`;
 }
 /* Зберегти книгу. Якщо книга була «Читаю» і поточна сторінка змінилася —
@@ -1037,7 +1038,7 @@ function openScanner(onFound){
     }catch(e){ st('Камера недоступна. Дозвольте доступ до камери або скористайтеся кнопкою «Сфотографувати штрихкод».'); }
   })();
 }
-function openSearch(onPick){
+function openSearch(onPick, initial=''){
   const s=openSheet({title:'Пошук книги'});
   s.body.innerHTML=`<div class="in">
     <div class="pg-row" style="margin-top:0"><input class="inp" id="srQ" type="search" placeholder="Назва та/або автор" autocomplete="off"><button class="btn btn-primary" id="srGo">Знайти</button></div>
@@ -1056,7 +1057,71 @@ function openSearch(onPick){
   q('#srGo').addEventListener('click',go);
   q('#srQ').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); go(); } });
   q('#srR').addEventListener('click',e=>{ const b=e.target.closest('[data-i]'); if(!b) return; const r=found[+b.dataset.i]; closeSheet(s); onPick(r); });
-  setTimeout(()=>q('#srQ').focus(),100);
+  if(initial){ q('#srQ').value=initial; go(); } else setTimeout(()=>q('#srQ').focus(),100);
+}
+
+/* ---------- Доповнення книг з інтернету ---------- */
+const normT = t => String(t||'').toLowerCase().replace(/[«»"'’`.,:;!?()\-–—]/g,' ').replace(/\s+/g,' ').trim();
+function titleMatches(a,b){ const x=normT(a), y=normT(b); if(!x||!y) return false; const n=Math.min(14,x.length,y.length); return x.startsWith(y.slice(0,n)) || y.startsWith(x.slice(0,n)); }
+async function findBookInfo(b){
+  const qs=[]; const t=b.title.replace(/[«»"]/g,'');
+  if(b.author) qs.push(`intitle:${t} inauthor:${b.author.split(',')[0].split(' ').pop()}`);
+  qs.push(t+(b.author?' '+b.author.split(',')[0]:''));
+  for(const q of qs){
+    try{
+      const j=await getJSON('https://www.googleapis.com/books/v1/volumes?maxResults=10&printType=books&q='+encodeURIComponent(q));
+      const items=(j.items||[]).map(i=>fromGoogle(i.volumeInfo)).filter(r=>titleMatches(r.title,b.title));
+      if(items.length){
+        /* найкращий варіант: з обкладинкою й сторінками */
+        items.sort((x,y)=>((y.coverUrl?1:0)+(y.pages?1:0))-((x.coverUrl?1:0)+(x.pages?1:0)));
+        const r={...items[0]};
+        if(!r.pages) r.pages=(items.find(x=>x.pages)||{}).pages||0;
+        if(!r.coverUrl) r.coverUrl=(items.find(x=>x.coverUrl)||{}).coverUrl||'';
+        if((!r.coverUrl||!r.pages) && r.isbn){ const o=await lookupISBN(r.isbn); if(o){ r.coverUrl=r.coverUrl||o.coverUrl; r.pages=r.pages||o.pages; } }
+        return r;
+      }
+    }catch(e){ if(String(e.message)==='429') throw e; }
+    await sleep(250);
+  }
+  return null;
+}
+/* заповнює лише порожнє; нічого з того, що ви вже вписали, не перезаписує */
+async function applyInfo(b, r, overwrite=false){
+  let changed=false;
+  if(r.pages && (overwrite || !b.pages)){ b.pages=r.pages; changed=true; }
+  if(r.coverUrl && (overwrite || !b.cover)){ const c=await urlToCover(r.coverUrl); if(c){ b.cover=c; changed=true; } }
+  if(r.description && !b.description){ b.description=r.description; changed=true; }
+  if(r.author && !b.author){ b.author=r.author; changed=true; }
+  if(r.isbn && !b.isbn){ b.isbn=r.isbn; changed=true; }
+  if(b.status==='read' && b.pages) b.currentPage=b.pages;
+  return changed;
+}
+let enriching=false, enrichMsg='';
+async function enrichAll(statusEl){
+  if(enriching) return; enriching=true;
+  const todo=books.filter(b=>!b.cover||!b.pages).map(b=>b.id);
+  let found=0, miss=[], i=0, limited=false;
+  const say=m=>{ enrichMsg=m; const el=document.getElementById('enrichSt'); if(el) el.innerHTML=m; };
+  try{
+    for(const id of todo){
+      i++; const b=clone(find(id)); if(!b) continue;
+      say(`Шукаю ${i} з ${todo.length}: «${esc(b.title)}»…`);
+      let r=null;
+      try{ r=await findBookInfo(b); }catch(e){ limited=true; break; }
+      if(r && await applyInfo(b,r)){ normalize(b,false); await Store.put(b,true); found++; } else miss.push(b.title);
+      if(i%5===0) refresh();
+      await sleep(300);
+    }
+  } finally { enriching=false; }
+  const msg = limited ? `Доповнено ${found} ${plural(found,'книгу','книги','книг')}. База книг тимчасово обмежила кількість запитів: зачекайте годину й натисніть ще раз, знайдене вже збережено.` : `Готово: доповнено ${found} ${plural(found,'книгу','книги','книг')}.` + (miss.length?` Не знайдено ${miss.length}: для них відкрийте книгу й натисніть «Знайти обкладинку й сторінки».`:'');
+  enrichMsg=msg; refresh(); say(msg); toast(`Доповнено ${found} ${plural(found,'книгу','книги','книг')}`);
+}
+function findForBook(id){
+  const b=find(id); if(!b) return;
+  openSearch(async r=>{
+    const c=clone(find(id)); toast('Завантажую…');
+    await applyInfo(c,r,true); await saveBook(c); toast('Дані книги оновлено');
+  }, (b.title+' '+(b.author||'')).trim());
 }
 
 /* ---------- Форма: додати / редагувати ---------- */
@@ -1176,7 +1241,7 @@ function applyLook(){
 applyLook();
 
 function openSettings(){
-  const s=openSheet({title:'Оформлення та дані'});
+  const s=openSheet({title:'Оформлення та дані'}); s.isSettings=true;
   s.render=()=>{
     const t=getTheme(), last=Store.meta.lastBackup;
     const where = Store.mode==='cloud' ? 'Книги зберігаються у вашому акаунті Claude і доступні з будь-якого пристрою, де ви входите в акаунт. Вони приватні, навіть якщо ви комусь надішлете посилання.'
@@ -1190,6 +1255,11 @@ function openSettings(){
         <div class="field"><label for="dF">Заголовки й назви книг</label><select class="inp" id="dF">${DFONTS.map(([v,l])=>`<option value="${v}" ${pref('lib-dfont','')===v?'selected':''} style="font-family:var(--F-${v||'literata'})">${l}</option>`).join('')}</select></div>
         <div class="field" style="margin-bottom:0"><label for="bF">Основний текст</label><select class="inp" id="bF">${BFONTS.map(([v,l])=>`<option value="${v}" ${pref('lib-bfont','')===v?'selected':''}>${l}</option>`).join('')}</select></div>
         <p class="hint">Зміни видно одразу. Спробуйте різні варіанти.</p></div>
+      <div class="block"><h3>Обкладинки й сторінки</h3>
+        <p style="margin:0 0 12px;font-size:15px">Без обкладинки чи кількості сторінок: <b>${books.filter(b=>!b.cover||!b.pages).length}</b> ${plural(books.filter(b=>!b.cover||!b.pages).length,'книга','книги','книг')}.</p>
+        <button class="btn btn-primary btn-wide" id="enrichBtn" ${enriching?'disabled':''}>Знайти для всіх книг</button>
+        <div class="status" id="enrichSt" aria-live="polite">${enrichMsg}</div>
+        <p class="hint">Шукає в безкоштовних базах Google Books та Open Library. Заповнює тільки порожнє: ваші фото й дані не змінюються. Для 100 книг це займе кілька хвилин, телефон не блокуйте.</p></div>
       <div class="block"><h3>Облік</h3>
         <div class="field" style="margin-bottom:0"><label for="sinceIn">Веду облік прочитаного з</label>
         <input class="inp" id="sinceIn" type="month" value="${since()}" max="${thisMonth()}"></div>
@@ -1206,6 +1276,7 @@ function openSettings(){
       </div></div>`;
     s.body.querySelector('#thm').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return;
       setPref('lib-theme',b.dataset.t); applyLook(); s.render(); });
+    s.body.querySelector('#enrichBtn').addEventListener('click',e=>{ e.target.disabled=true; enrichAll(s.body.querySelector('#enrichSt')); });
     s.body.querySelector('#sinceIn').addEventListener('change',e=>{ const v=e.target.value; if(/^\d{4}-\d{2}$/.test(v)){ try{ localStorage.setItem('lib-since',v); }catch(err){} refresh(); toast('Збережено'); } });
     s.body.querySelector('#dF').addEventListener('change',e=>{ setPref('lib-dfont',e.target.value); applyLook(); });
     s.body.querySelector('#bF').addEventListener('change',e=>{ setPref('lib-bfont',e.target.value); applyLook(); });
