@@ -236,6 +236,13 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 5
 .cover-pick{display:flex;gap:16px;align-items:center}
 .cover-pick .cover{width:96px}
 .cover-pick .acts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.stars{position:relative;display:inline-block;color:var(--surface2);letter-spacing:1px;line-height:1;font-size:14px;white-space:nowrap}
+.stars::before{content:"★★★★★";position:absolute;left:0;top:0;width:var(--p);overflow:hidden;color:var(--gold);white-space:nowrap}
+.stars.big{font-size:22px;letter-spacing:2px}
+.starpick{display:flex;gap:6px;align-items:center}
+.starpick button{position:relative;width:52px;height:52px;font-size:40px;line-height:1;color:var(--surface2);display:grid;place-items:center}
+.starpick button::before{content:"★";position:absolute;inset:0;display:grid;place-items:center;color:var(--gold);clip-path:inset(0 calc(100% - var(--f,0%)) 0 0)}
+.starpick .val{margin-left:8px;font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
 .rating{display:flex;gap:4px}
 .rating button{flex:1;min-height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-variant-numeric:tabular-nums;font-size:15px}
 .rating button.on{background:var(--gold);border-color:var(--gold);color:#fff}
@@ -373,6 +380,7 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 5
    ========================================================= */
 
 const SCHEMA_VERSION = 1;
+const APP_VERSION = '1.6';
 const STATUS = { want:'Хочу прочитати', reading:'Читаю', read:'Прочитана', dropped:'Кинула' };
 const STATUS_KEYS = ['want','reading','read','dropped'];
 const MONTHS = ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
@@ -541,6 +549,9 @@ function coverHTML(b, extra=''){
   const img = b.cover ? `<img class="cv" src="${esc(b.cover)}" alt="" onerror="this.remove()">` : '';
   return `<div class="cover ph" style="--c:${c}">${fav}${img}<span class="ph-t">${esc(b.title||'Без назви')}</span><span class="ph-a">${esc(b.author)}</span></div>`;
 }
+/* оцінка зберігається як 1–10 (половинки зірок), показується як 5 зірок */
+const starsHTML = (r, big=false) => r ? `<span class="stars${big?' big':''}" style="--p:${r*10}%" aria-label="${(r/2).toString().replace('.',',')} з 5">★★★★★</span>` : '';
+const starsText = r => (r/2).toString().replace('.',',');
 const pill = s => `<span class="pill st-${s}">${STATUS[s]}</span>`;
 const ICON_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
 
@@ -585,7 +596,8 @@ function homeHTML(){
   <h2>${MONTHS_NOM[new Date().getMonth()]}</h2>
   ${monthHTML(thisMonth(), false)}
 
-  ${monthShelfHTML()}
+  ${favShelfHTML()}
+  ${monthShelfHTML(true)}
 
   <button class="big-add" onclick="openForm()"><span style="font-size:24px;line-height:1">+</span> Додати книгу</button>
 
@@ -620,9 +632,15 @@ function quoteHTML(){
   return `<h2>Цитата дня</h2><div class="quote" onclick="openBook('${pick.b.id}')" style="cursor:pointer"><p>${esc(pick.q.text)}</p>
     <div class="src">${esc(pick.b.title)}${pick.b.author?`, ${esc(pick.b.author)}`:''}</div></div>`;
 }
-function monthShelfHTML(){
+function favShelfHTML(){
+  const list=books.filter(b=>b.favorite).sort((a,b)=>(a.title||'').localeCompare(b.title||'','uk'));
+  return `<h2>Мої улюблені</h2><div class="mshelf">${list.length ? list.map(b=>`<button onclick="openBook('${b.id}')" aria-label="${esc(b.title)}">${coverHTML(b)}</button>`).join('')
+    : `<span class="none">Відкрийте книгу й натисніть «До улюблених», і вона стане на цю полицю.</span>`}</div><div class="mshelf-board"></div>`;
+}
+function monthShelfHTML(onlyIfAny){
   const ym=thisMonth(), m=new Date().getMonth();
   const list=books.filter(b=>b.status==='read'&&(b.endDate||'').startsWith(ym)).sort((a,b)=>(a.endDate||'').localeCompare(b.endDate||''));
+  if(onlyIfAny && !list.length) return '';
   return `<h2>Полиця ${MONTHS_GEN[m]}</h2><div class="mshelf">${list.length ? list.map(b=>`<button onclick="openBook('${b.id}')" aria-label="${esc(b.title)}">${coverHTML(b)}</button>`).join('')
     : `<span class="none">Тут стоятимуть книги, які ви дочитаєте у ${MONTHS_LOC[m]}.</span>`}</div><div class="mshelf-board"></div>`;
 }
@@ -729,7 +747,7 @@ function filtered(){
 function bookCard(b){
   return `<button class="card" onclick="openBook('${b.id}')">${coverHTML(b,'with-fav')}
     <div class="title">${esc(b.title)}</div><div class="author">${esc(b.author)||'&nbsp;'}</div>${b.label?`<div class="blabel">${esc(b.label)}</div>`:''}
-    <div class="meta">${pill(b.status)}${b.rating?`<span class="rate">${b.rating}/10</span>`:''}</div></button>`;
+    <div class="meta">${pill(b.status)}${starsHTML(b.rating)}</div></button>`;
 }
 function updateGrid(){
   const list=filtered(), g=$('#grid'); if(!g) return;
@@ -746,7 +764,7 @@ function openFilters(){
     <div class="field"><label for="fA">Автор</label><select id="fA" class="inp">${opt('','Усі автори',state.author)}${uniq('author').map(a=>opt(a,a,state.author)).join('')}</select></div>
     <div class="field"><label for="fG">Жанр</label><select id="fG" class="inp">${opt('','Усі жанри',state.genre)}${uniq('genre').map(a=>opt(a,a,state.genre)).join('')}</select></div>
     ${uniq('label').length?`<div class="field"><label for="fL">Примітка</label><select id="fL" class="inp">${opt('','Усі книги',state.label)}${uniq('label').map(a=>opt(a,a,state.label)).join('')}</select></div>`:''}
-    <div class="field"><label for="fR">Оцінка</label><select id="fR" class="inp">${opt('0','Будь-яка',String(state.minRating))}${[10,9,8,7,6,5].map(r=>opt(String(r),r===10?'Тільки 10':`від ${r} і вище`,String(state.minRating))).join('')}</select></div>
+    <div class="field"><label for="fR">Оцінка</label><select id="fR" class="inp">${opt('0','Будь-яка',String(state.minRating))}${[10,8,6,4,2].map(r=>opt(String(r),r===10?'Тільки 5 зірок':`від ${r/2} зірок і вище`.replace('від 1 зірок','від 1 зірки').replace(/від (2|3|4) зірок/,'від $1 зірки'),String(state.minRating))).join('')}</select></div>
     <div class="field"><label for="fS">Сортувати за</label><select id="fS" class="inp">
       ${[['title','Назвою'],['author','Автором'],['rating','Оцінкою'],['startDate','Датою початку'],['endDate','Датою завершення'],['pages','Кількістю сторінок']].map(([v,l])=>opt(v,l,state.sort)).join('')}</select></div>
     <div class="field"><span class="flabel">Порядок</span><div class="seg" id="fD">
@@ -817,7 +835,7 @@ function statsHTML(){
   <section class="counts" style="margin-top:16px">
     <div><span class="num">${read.length}</span><span class="lbl">${plural(read.length,'книга прочитана','книги прочитано','книг прочитано')}</span></div>
     <div><span class="num">${fmtNum(pages)}</span><span class="lbl">сторінок</span></div>
-    <div class="wide" style="border-bottom:0"><span class="lbl">Середня оцінка</span><span class="num">${avgRating?avgRating.toFixed(1).replace('.',','):'—'}</span></div>
+    <div class="wide" style="border-bottom:0"><span class="lbl">Середня оцінка</span><span class="num">${avgRating?(avgRating/2).toFixed(1).replace('.',',')+' ★':'—'}</span></div>
   </section>
   <h2>Сторінки по днях</h2>
   ${monthHTML(state.month||thisMonth(), true)}
@@ -874,7 +892,7 @@ function detailHTML(b){
   return `<div class="in">
   <div class="d-head">${coverHTML(b)}
     <div class="d-title">${esc(b.title)}</div><div class="d-author">${esc(b.author)||'Автор не вказаний'}</div>${b.label?`<div class="d-label">${esc(b.label)}</div>`:''}
-    <div class="d-tags">${b.genre?`<span class="tag">${esc(b.genre)}</span>`:''}${b.rating?`<span class="tag rate">${b.rating}/10</span>`:''}
+    <div class="d-tags">${b.genre?`<span class="tag">${esc(b.genre)}</span>`:''}${b.rating?`<span class="tag">${starsHTML(b.rating)}</span>`:''}
       <button class="fav-btn" aria-pressed="${b.favorite}" onclick="toggleFav('${b.id}')">${heart}${b.favorite?'Улюблена':'До улюблених'}</button></div>
   </div>
   <div class="block"><h3>Статус</h3><div class="seg">${STATUS_KEYS.map(k=>`<button aria-pressed="${b.status===k}" onclick="setStatus('${b.id}','${k}')" style="font-size:13px">${STATUS[k]}</button>`).join('')}</div></div>
@@ -883,7 +901,7 @@ function detailHTML(b){
     <dt>Сторінок</dt><dd>${b.pages||'—'}</dd>
     <dt>Почала</dt><dd>${fmtDate(b.startDate)}</dd>
     <dt>Завершила</dt><dd>${fmtDate(b.endDate)}</dd>
-    <dt>Оцінка</dt><dd>${b.rating?b.rating+' з 10':'—'}</dd></dl></div>
+    <dt>Оцінка</dt><dd>${b.rating?`${starsHTML(b.rating)} ${starsText(b.rating)}`:'—'}</dd></dl></div>
   ${b.description?`<div class="block"><h3>Про книгу</h3><div class="text">${esc(b.description)}</div></div>`:''}
   ${b.notes?`<div class="block"><h3>Мої враження</h3><div class="text">${esc(b.notes)}</div></div>`:''}
   <div class="block"><h3>Цитати</h3>
@@ -896,7 +914,7 @@ function detailHTML(b){
 /* Зберегти книгу. Якщо книга була «Читаю» і поточна сторінка змінилася —
    різниця записується в журнал за сьогодні (для «сторінок за день»). */
 async function saveBook(b){
-  const old=find(b.id); normalize(b);
+  const old=find(b.id); normalize(b,false); /* дати ставляться лише кнопками («Почати читати», «Я дочитала») або вручну */
   if(old && old.status==='reading' && (b.status==='reading'||b.status==='read')){
     const delta=(b.currentPage||0)-(old.currentPage||0), k=today();
     if(delta){ const v=Math.max(0,((b.log||{})[k]||0)+delta); b.log=b.log||{}; if(v) b.log[k]=v; else delete b.log[k]; }
@@ -973,6 +991,21 @@ function fromGoogle(v){
   return { title:(v.title||'')+(v.subtitle?': '+v.subtitle:''), author:(v.authors||[]).join(', '), pages:v.pageCount||0,
     description:stripHtml(v.description).slice(0,4000), coverUrl:gThumb(v.imageLinks), isbn:i13?i13.identifier:'', year:(v.publishedDate||'').slice(0,4) };
 }
+let googleBlocked=false;
+async function olSearch(text, author=''){
+  const url = author ? `https://openlibrary.org/search.json?limit=10&title=${encodeURIComponent(text)}&author=${encodeURIComponent(author)}`
+                     : `https://openlibrary.org/search.json?limit=12&q=${encodeURIComponent(text)}`;
+  const j=await getJSON(url+'&fields=title,author_name,number_of_pages_median,cover_i,isbn,first_publish_year');
+  return (j.docs||[]).map(d=>({ title:d.title||'', author:(d.author_name||[]).slice(0,3).join(', '), pages:d.number_of_pages_median||0,
+    coverUrl: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg` : '', isbn:((d.isbn||[]).find(x=>x.length===13)||''),
+    description:'', year: d.first_publish_year?String(d.first_publish_year):'' })).filter(r=>r.title);
+}
+async function googleSearch(q, n=10){
+  if(googleBlocked) throw new Error('blocked');
+  try{ const j=await getJSON(`https://www.googleapis.com/books/v1/volumes?maxResults=${n}&printType=books&q=`+encodeURIComponent(q));
+    return (j.items||[]).map(i=>fromGoogle(i.volumeInfo)).filter(r=>r.title); }
+  catch(e){ if(/^(429|403)$/.test(String(e.message))) googleBlocked=true; throw e; }
+}
 async function getJSON(url){ const r=await fetch(url); if(!r.ok) throw new Error(r.status); return r.json(); }
 async function lookupISBN(isbn){
   let res=null;
@@ -1047,8 +1080,11 @@ function openSearch(onPick, initial=''){
   async function go(){
     const text=q('#srQ').value.trim(); if(!text) return;
     q('#srS').textContent='Шукаю…'; q('#srR').innerHTML='';
-    try{ const j=await getJSON('https://www.googleapis.com/books/v1/volumes?maxResults=15&printType=books&q='+encodeURIComponent(text));
-      found=(j.items||[]).map(i=>fromGoogle(i.volumeInfo)).filter(r=>r.title);
+    try{ let g=[], o=[], fails=0;
+      try{ g=await googleSearch(text,15); }catch(e){ fails++; }
+      try{ o=await olSearch(text); }catch(e){ fails++; }
+      if(fails===2) throw new Error('offline');
+      found=g.concat(o.filter(r=>!g.some(x=>normT(x.title)===normT(r.title)&&x.author===r.author)));
       q('#srS').textContent = found.length ? 'Натисніть на свою книгу:' : 'Нічого не знайдено. Спробуйте інші слова або лише прізвище автора.';
       q('#srR').innerHTML=found.map((r,i)=>`<button class="res" data-i="${i}">${r.coverUrl?`<img src="${esc(r.coverUrl)}" alt="" onerror="this.style.visibility='hidden'">`:'<span class="noimg"></span>'}
         <span><div class="rt">${esc(r.title)}</div><div class="ra">${esc(r.author||'Автор невідомий')}${r.year?`, ${r.year}`:''}${r.pages?`, ${r.pages} с.`:''}</div></span></button>`).join('');
@@ -1064,26 +1100,27 @@ function openSearch(onPick, initial=''){
 const normT = t => String(t||'').toLowerCase().replace(/[«»"'’`.,:;!?()\-–—]/g,' ').replace(/\s+/g,' ').trim();
 function titleMatches(a,b){ const x=normT(a), y=normT(b); if(!x||!y) return false; const n=Math.min(14,x.length,y.length); return x.startsWith(y.slice(0,n)) || y.startsWith(x.slice(0,n)); }
 async function findBookInfo(b){
-  const qs=[]; const t=b.title.replace(/[«»"]/g,'');
-  if(b.author) qs.push(`intitle:${t} inauthor:${b.author.split(',')[0].split(' ').pop()}`);
-  qs.push(t+(b.author?' '+b.author.split(',')[0]:''));
+  const t=b.title.replace(/[«»"]/g,''), a=(b.author||'').split(',')[0].trim(), last=a.split(' ').pop();
+  let pool=[], errors=0;
+  const qs = a ? [`intitle:${t} inauthor:${last}`, `${t} ${a}`] : [t];
   for(const q of qs){
-    try{
-      const j=await getJSON('https://www.googleapis.com/books/v1/volumes?maxResults=10&printType=books&q='+encodeURIComponent(q));
-      const items=(j.items||[]).map(i=>fromGoogle(i.volumeInfo)).filter(r=>titleMatches(r.title,b.title));
-      if(items.length){
-        /* найкращий варіант: з обкладинкою й сторінками */
-        items.sort((x,y)=>((y.coverUrl?1:0)+(y.pages?1:0))-((x.coverUrl?1:0)+(x.pages?1:0)));
-        const r={...items[0]};
-        if(!r.pages) r.pages=(items.find(x=>x.pages)||{}).pages||0;
-        if(!r.coverUrl) r.coverUrl=(items.find(x=>x.coverUrl)||{}).coverUrl||'';
-        if((!r.coverUrl||!r.pages) && r.isbn){ const o=await lookupISBN(r.isbn); if(o){ r.coverUrl=r.coverUrl||o.coverUrl; r.pages=r.pages||o.pages; } }
-        return r;
-      }
-    }catch(e){ if(String(e.message)==='429') throw e; }
-    await sleep(250);
+    try{ pool=pool.concat((await googleSearch(q)).filter(r=>titleMatches(r.title,b.title))); }catch(e){ errors++; }
+    if(pool.some(r=>r.coverUrl&&r.pages)) break;
+    await sleep(200);
   }
-  return null;
+  if(!pool.some(r=>r.coverUrl&&r.pages)){
+    try{ let ol=(await olSearch(t, last)).filter(r=>titleMatches(r.title,b.title));
+      if(!ol.length && a) ol=(await olSearch(t)).filter(r=>titleMatches(r.title,b.title));
+      pool=pool.concat(ol); }catch(e){ errors++; }
+  }
+  if(!pool.length){ if(errors>=qs.length+1) throw new Error('offline'); return null; }
+  pool.sort((x,y)=>((y.coverUrl?1:0)+(y.pages?1:0))-((x.coverUrl?1:0)+(x.pages?1:0)));
+  const r={...pool[0]};
+  r.pages=r.pages||(pool.find(x=>x.pages)||{}).pages||0;
+  r.coverUrl=r.coverUrl||(pool.find(x=>x.coverUrl)||{}).coverUrl||'';
+  r.description=r.description||(pool.find(x=>x.description)||{}).description||'';
+  if((!r.coverUrl||!r.pages) && r.isbn){ try{ const o=await lookupISBN(r.isbn); if(o){ r.coverUrl=r.coverUrl||o.coverUrl; r.pages=r.pages||o.pages; } }catch(e){} }
+  return r;
 }
 /* заповнює лише порожнє; нічого з того, що ви вже вписали, не перезаписує */
 async function applyInfo(b, r, overwrite=false){
@@ -1100,20 +1137,20 @@ let enriching=false, enrichMsg='';
 async function enrichAll(statusEl){
   if(enriching) return; enriching=true;
   const todo=books.filter(b=>!b.cover||!b.pages).map(b=>b.id);
-  let found=0, miss=[], i=0, limited=false;
+  let found=0, miss=[], i=0, limited=false, offlineCount=0; googleBlocked=false;
   const say=m=>{ enrichMsg=m; const el=document.getElementById('enrichSt'); if(el) el.innerHTML=m; };
   try{
     for(const id of todo){
       i++; const b=clone(find(id)); if(!b) continue;
       say(`Шукаю ${i} з ${todo.length}: «${esc(b.title)}»…`);
       let r=null;
-      try{ r=await findBookInfo(b); }catch(e){ limited=true; break; }
+      try{ r=await findBookInfo(b); }catch(e){ offlineCount++; if(offlineCount>=3){ limited=true; break; } }
       if(r && await applyInfo(b,r)){ normalize(b,false); await Store.put(b,true); found++; } else miss.push(b.title);
       if(i%5===0) refresh();
       await sleep(300);
     }
   } finally { enriching=false; }
-  const msg = limited ? `Доповнено ${found} ${plural(found,'книгу','книги','книг')}. База книг тимчасово обмежила кількість запитів: зачекайте годину й натисніть ще раз, знайдене вже збережено.` : `Готово: доповнено ${found} ${plural(found,'книгу','книги','книг')}.` + (miss.length?` Не знайдено ${miss.length}: для них відкрийте книгу й натисніть «Знайти обкладинку й сторінки».`:'');
+  const msg = limited ? `Доповнено ${found} ${plural(found,'книгу','книги','книг')}. Не вдається з\u2019єднатися з базами книг. Перевірте інтернет (Wi‑Fi або мобільні дані) і натисніть ще раз: знайдене вже збережено.` : `Готово: доповнено ${found} ${plural(found,'книгу','книги','книг')}.` + (miss.length?` Не знайдено ${miss.length}: для них відкрийте книгу й натисніть «Знайти обкладинку й сторінки».`:'');
   enrichMsg=msg; refresh(); say(msg); toast(`Доповнено ${found} ${plural(found,'книгу','книги','книг')}`);
 }
 function findForBook(id){
@@ -1153,8 +1190,8 @@ function openForm(book){
     <div class="field"><label for="fStart">Дата початку</label><input class="inp" id="fStart" type="date" value="${v(b.startDate)}"></div>
     <div class="field"><label for="fEnd">Дата завершення</label><input class="inp" id="fEnd" type="date" value="${v(b.endDate)}"></div>
   </div>
-  <div class="field"><span class="flabel">Оцінка</span><div class="rating" id="fRate">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button type="button" data-r="${n}" class="${b.rating===n?'on':''}" aria-pressed="${b.rating===n}">${n}</button>`).join('')}</div>
-    <p class="hint">Натисніть ще раз, щоб прибрати оцінку.</p></div>
+  <div class="field"><span class="flabel">Оцінка</span><div class="starpick" id="fRate">${[1,2,3,4,5].map(n=>`<button type="button" data-s="${n}" aria-label="${n} з 5">★</button>`).join('')}<span class="val" id="fRateV"></span></div>
+    <p class="hint">Натисніть зірку ще раз, щоб поставити половинку. Утретє, щоб прибрати.</p></div>
   <div class="field"><label for="fDesc">Короткий опис</label><textarea class="inp" id="fDesc">${v(b.description)}</textarea></div>
   <div class="field"><label for="fNotes">Мої враження та нотатки</label><textarea class="inp" id="fNotes">${v(b.notes)}</textarea></div>
   <div class="field"><div class="switch-row"><span>Улюблена</span><button type="button" class="switch" role="switch" id="fFav" aria-checked="${b.favorite}" aria-label="Улюблена"></button></div></div>
@@ -1167,8 +1204,11 @@ function openForm(book){
   q('#cvIn').addEventListener('change',async e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return;
     try{ b.cover=await compressImage(f); drawCover(); }catch(err){ toast('Не вдалося відкрити це фото. Спробуйте інше.'); } });
   q('#cvDel').addEventListener('click',()=>{ b.cover=''; drawCover(); });
-  q('#fRate').addEventListener('click',e=>{ const r=e.target.closest('[data-r]'); if(!r) return; const n=+r.dataset.r; b.rating = b.rating===n ? null : n;
-    q('#fRate').querySelectorAll('button').forEach(x=>{ const on=+x.dataset.r===b.rating; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on); }); });
+  const drawStars=()=>{ q('#fRate').querySelectorAll('[data-s]').forEach(x=>{ const n=+x.dataset.s, r=b.rating||0; x.style.setProperty('--f', r>=n*2?'100%':r===n*2-1?'50%':'0%'); });
+    q('#fRateV').textContent = b.rating ? starsText(b.rating)+' з 5' : ''; };
+  drawStars();
+  q('#fRate').addEventListener('click',e=>{ const x=e.target.closest('[data-s]'); if(!x) return; const n=+x.dataset.s;
+    b.rating = b.rating===n*2 ? n*2-1 : b.rating===n*2-1 ? null : n*2; drawStars(); });
   q('#fFav').addEventListener('click',e=>{ b.favorite=!b.favorite; e.currentTarget.setAttribute('aria-checked',b.favorite); });
   q('#saveBottom').addEventListener('click',()=>submit());
   const lc=q('#lChips'); if(lc) lc.addEventListener('click',e=>{ const c=e.target.closest('[data-l]'); if(c) q('#fLabel').value=c.dataset.l; });
@@ -1273,7 +1313,7 @@ function openSettings(){
         <p class="hint">Відновлює книги з файлу експорту. Наявні книги не зникнуть: однакові оновляться, нові додадуться.</p>
         <button class="btn btn-soft btn-wide" style="margin-top:12px" onclick="exportCSV()">Таблиця для Excel (.csv)</button>
         <p class="hint">Для перенесення в інші сервіси. Обкладинки в таблицю не потрапляють.</p>
-      </div></div>`;
+      </div><p class="hint" style="text-align:center;margin-top:20px">Версія ${APP_VERSION}</p></div>`;
     s.body.querySelector('#thm').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return;
       setPref('lib-theme',b.dataset.t); applyLook(); s.render(); });
     s.body.querySelector('#enrichBtn').addEventListener('click',e=>{ e.target.disabled=true; enrichAll(s.body.querySelector('#enrichSt')); });
@@ -1303,7 +1343,7 @@ async function exportJSON(){
 }
 async function exportCSV(){
   const cols=[['Назва','title'],['Автор','author'],['Жанр','genre'],['Примітка','label'],['Сторінок','pages'],['Поточна сторінка','currentPage'],['Прогрес %',b=>pct(b)],
-    ['Статус',b=>STATUS[b.status]],['Дата початку','startDate'],['Дата завершення','endDate'],['Оцінка','rating'],['Улюблена',b=>b.favorite?'так':''],['Опис','description'],['Нотатки','notes'],['Цитати',b=>(b.quotes||[]).map(q=>q.text+(q.page?` (с. ${q.page})`:'')).join(' | ')]];
+    ['Статус',b=>STATUS[b.status]],['Дата початку','startDate'],['Дата завершення','endDate'],['Оцінка (зірок з 5)',b=>b.rating?b.rating/2:''],['Улюблена',b=>b.favorite?'так':''],['Опис','description'],['Нотатки','notes'],['Цитати',b=>(b.quotes||[]).map(q=>q.text+(q.page?` (с. ${q.page})`:'')).join(' | ')]];
   const cell=v=>{ const s=String(v??''); return /[",;\n\r]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
   const rows=[cols.map(c=>c[0]).join(','), ...books.map(b=>cols.map(([,k])=>cell(typeof k==='function'?k(b):b[k])).join(','))];
   const ok=await saveFile(`biblioteka-${today()}.csv`, new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv'}));
